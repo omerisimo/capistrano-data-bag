@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 require 'capistrano-spec'
 require 'capistrano-data-bag'
 
