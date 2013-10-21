@@ -1,3 +1,7 @@
+
+[![Build Status](https://secure.travis-ci.org/omerisimo/capistrano-data-bag.png?branch=master)](http://travis-ci.org/omerisimo/capistrano-data-bag)
+[![Coverage Status](https://coveralls.io/repos/omerisimo/capistrano-data-bag/badge.png)](https://coveralls.io/r/omerisimo/capistrano-data-bag)
+
 capistrano-data-bag
 ===================
 
