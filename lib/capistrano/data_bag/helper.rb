@@ -5,9 +5,11 @@ module Capistrano
     module Helper
       def create_data_bag_item(bag, item, data = {})
         FileUtils.makedirs "#{data_bags_path}/#{bag}" unless Dir.exist? "#{data_bags_path}/#{bag}"
-        File.open("#{data_bags_path}/#{bag}/#{item}.json", "w") do |f|
+        data_bag_item_file = "#{data_bags_path}/#{bag}/#{item}.json"
+        File.open(data_bag_item_file, "w") do |f|
           f.write JSON.pretty_generate(data.merge!(id: item))
         end
+        puts "Created a new data bag item at: #{data_bag_item_file}"
       end
 
       def load_data_bag(bag)
