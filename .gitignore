@@ -2,3 +2,4 @@
 .bundle
 .config
 Gemfile.lock
+coverage/

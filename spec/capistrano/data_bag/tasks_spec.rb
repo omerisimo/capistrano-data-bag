@@ -8,8 +8,8 @@ describe Capistrano::DataBag::Tasks do
   end
 
   subject do
-     Capistrano::DataBag::Tasks.load_into(@configuration)
-     @configuration
+    Capistrano::DataBag::Tasks.load_into(@configuration)
+    @configuration
   end
 
   context "loaded into a configuration" do
@@ -90,8 +90,6 @@ describe Capistrano::DataBag::Tasks do
     end
 
     describe 'data_bag:show' do
-      before { STDOUT.stub(:puts) }
-
       it "asks for the data bag name if it does not exist" do
         Capistrano::CLI.ui.should_receive(:ask).with("Enter data bag name: ").and_return("my_bag")
 
