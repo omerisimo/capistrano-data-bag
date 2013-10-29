@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Capistrano::DataBag::Helper do
+describe Capistrano::DataBag::Support do
   TEMP_PATH = "../../../temp"
   DATA_BAG_PATH = File.expand_path(TEMP_PATH + "/data-bags", __FILE__)
 
@@ -10,7 +10,7 @@ describe Capistrano::DataBag::Helper do
   end
 
   subject do
-    Capistrano::DataBag::Helper.load_into(@configuration)
+    Capistrano::DataBag::Support.load_into(@configuration)
     @configuration
   end
 

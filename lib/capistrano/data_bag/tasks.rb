@@ -6,7 +6,7 @@ module Capistrano
   module DataBag
     class Tasks
       def self.load_into(capistrano_config)
-        Capistrano::DataBag::Helper.load_into(capistrano_config)
+        Capistrano::DataBag::Support.load_into(capistrano_config)
         capistrano_config.load do
 
           set :data_bags_path, "./config/deploy/data-bags" unless exists?(:data_bags_path)

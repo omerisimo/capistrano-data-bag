@@ -2,7 +2,7 @@ require "json"
 
 module Capistrano
   module DataBag
-    module Helper
+    module Support
       def self.load_into(capistrano_configuration)
         capistrano_configuration.load do
           def create_data_bag_item(bag, item, data = {})
