@@ -10,7 +10,7 @@ Capistrano tasks and methods to manage data bags
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'capistrano-data-bag', require: false, group: :development, , :git => "git://github.com/omerisimo/capistrano-data-bag.git",
+gem 'capistrano-data-bag', require: false, group: :development, git: "git://github.com/omerisimo/capistrano-data-bag.git"
 ```
 
 And then execute:
