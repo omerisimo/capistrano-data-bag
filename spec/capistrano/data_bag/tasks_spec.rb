@@ -12,7 +12,7 @@ describe Capistrano::DataBag::Tasks do
     @configuration
   end
 
-  context "loaded into a configuration" do
+  context "loaded into configuration" do
     it "sets default attributes" do
       @configuration.should_receive(:set).with(:data_bags_path, "./config/deploy/data-bags")
       Capistrano::DataBag::Tasks.load_into(@configuration)
@@ -33,12 +33,12 @@ describe Capistrano::DataBag::Tasks do
         end
 
         it "loads the data from the json file" do
-          subject.should_receive(:load_json).with("./data_file.json")
+          Capistrano::DataBag::Support.should_receive(:load_json).with("./data_file.json")
           subject.find_and_execute_task('data_bag:create')
         end
 
         it "creates the data bag item with the supplied parameters" do
-          subject.should_receive(:load_json).with("./data_file.json").and_return({a: "1", b: [1,2,3]})
+          Capistrano::DataBag::Support.should_receive(:load_json).with("./data_file.json").and_return({a: "1", b: [1,2,3]})
           subject.should_receive(:create_data_bag_item).with("bag", "item", {a: "1", b: [1,2,3]})
 
           subject.find_and_execute_task('data_bag:create')

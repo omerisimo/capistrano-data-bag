@@ -6,7 +6,7 @@ module Capistrano
   module DataBag
     class Tasks
       def self.load_into(capistrano_config)
-        Capistrano::DataBag::Support.load_into(capistrano_config)
+        Capistrano::DataBag::DSL.load_into(capistrano_config)
         capistrano_config.load do
 
           set :data_bags_path, "./config/deploy/data-bags" unless exists?(:data_bags_path)
@@ -18,7 +18,7 @@ module Capistrano
               set(:data_bag_item, Capistrano::CLI.ui.ask("Enter item name: ")) unless exists?(:data_bag_item)
 
               if exists?(:data_file)
-                data = load_json(data_file) || {}
+                data = Capistrano::DataBag::Support.load_json(data_file) || {}
               else
                 data = {}
                 begin
