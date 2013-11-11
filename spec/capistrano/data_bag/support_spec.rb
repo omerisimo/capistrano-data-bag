@@ -21,4 +21,33 @@ describe Capistrano::DataBag::Support do
       subject.load_json(file_path).should == json_object
     end
   end
+
+  describe ".encrypt_data_bag_item" do
+    it "does not encrypt the :id key's value" do
+      encrypted_item = subject.encrypt_data_bag_item({id: "my_id"}, "secrete")
+      encrypted_item[:id] = "my_id"
+    end
+
+    it "encrypts each value and returns a hash of the encrypted data" do
+      # Stub the random IV to get a consistent encryption value
+      OpenSSL::Cipher::Cipher.any_instance.stub(:random_iv).and_return("\x05\x99\tEm\x04YR\xDB\x0E'\xC5\xFF\e@\xE4")
+
+      encrypted_item = subject.encrypt_data_bag_item({id: "my_id", val1: "value_1", val2: "value_2"}, "secrete")
+      encrypted_item.should == {
+        id: "my_id",
+        val1: {
+          "encrypted_data" => "ck3KbsHZNGwGQQ3qkwEqKg==\n",
+          "iv" => "BZkJRW0EWVLbDifF/xtA5A==\n",
+          "version" => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
+          "cipher" => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
+        },
+        val2: {
+          "encrypted_data" => "DyaB8O6Et1gCWwpK45bcng==\n",
+          "iv" => "BZkJRW0EWVLbDifF/xtA5A==\n",
+          "version" => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
+          "cipher" => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
+        }
+      }
+    end
+  end
 end
