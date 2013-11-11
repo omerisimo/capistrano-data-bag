@@ -20,7 +20,7 @@ describe Capistrano::DataBag::Tasks do
   end
 
   describe "task" do
-    describe 'data_bag:create' do
+    shared_examples_for "a :create task" do
       before do
         subject.stub(:create_data_bag_item)
       end
@@ -34,14 +34,14 @@ describe Capistrano::DataBag::Tasks do
 
         it "loads the data from the json file" do
           Capistrano::DataBag::Support.should_receive(:load_json).with("./data_file.json")
-          subject.find_and_execute_task('data_bag:create')
+          subject.find_and_execute_task(create_task)
         end
 
         it "creates the data bag item with the supplied parameters" do
           Capistrano::DataBag::Support.should_receive(:load_json).with("./data_file.json").and_return({a: "1", b: [1,2,3]})
           subject.should_receive(:create_data_bag_item).with("bag", "item", {a: "1", b: [1,2,3]})
 
-          subject.find_and_execute_task('data_bag:create')
+          subject.find_and_execute_task(create_task)
         end
       end
       context "with UI input" do
@@ -52,7 +52,7 @@ describe Capistrano::DataBag::Tasks do
           subject.set(:data_bag_item, "item")
           Capistrano::CLI.ui.should_receive(:ask).and_return("my_bag")
 
-          subject.find_and_execute_task('data_bag:create')
+          subject.find_and_execute_task(create_task)
 
           subject.data_bag_name.should == "my_bag"
         end
@@ -61,7 +61,7 @@ describe Capistrano::DataBag::Tasks do
           subject.set(:data_bag_name, "bag")
           Capistrano::CLI.ui.should_receive(:ask).and_return("my_item")
 
-          subject.find_and_execute_task('data_bag:create')
+          subject.find_and_execute_task(create_task)
 
           subject.data_bag_item.should == "my_item"
         end
@@ -78,13 +78,46 @@ describe Capistrano::DataBag::Tasks do
           end
 
           it "asks for key value pairs as item's data until an empty key is entered" do
-            subject.find_and_execute_task('data_bag:create')
+            subject.find_and_execute_task(create_task)
           end
 
           it "creates the data bag item with the supplied arguments" do
             subject.should_receive(:create_data_bag_item).with("bag", "item", {"key_1" => "value_1", "key_2"=> "value_2"})
-            subject.find_and_execute_task('data_bag:create')
+            subject.find_and_execute_task(create_task)
           end
+        end
+      end
+    end
+
+    describe 'data_bag:create' do
+      let (:create_task) { 'data_bag:create' }
+      it_behaves_like "a :create task"
+    end
+
+    describe 'data_bag:encrypted:create' do
+      let (:create_task) { 'data_bag:encrypted:create' }
+
+      context "with :data_bag_secrete set" do
+        before do
+          subject.set(:data_bag_secrete, "secrete_file_path")
+          IO.stub(:read).with("secrete_file_path").and_return(" secrete ")
+
+          # in each test expect to encrpyt the data
+          Capistrano::DataBag::Support.should_receive(:encrypt_data_bag_item) do |data, secrete|
+            data.should be_a(Hash)
+            secrete.should == "secrete"
+            # return the same data to make assertion easier with the normal create task
+            data
+          end
+        end
+        it_behaves_like "a :create task"
+      end
+
+      context "with :data_bag_secrete not set" do
+        it "raises an error" do
+          expect {
+            subject.find_and_execute_task(create_task)
+          }.to raise_error(ArgumentError, /Argument :data_bag_secrete is missing./)
         end
       end
     end
