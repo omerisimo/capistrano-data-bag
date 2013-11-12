@@ -24,7 +24,7 @@ describe Capistrano::DataBag::Support do
 
   describe ".encrypt_data_bag_item" do
     it "does not encrypt the :id key's value" do
-      encrypted_item = subject.encrypt_data_bag_item({id: "my_id"}, "secrete")
+      encrypted_item = subject.encrypt_data_bag_item({id: "my_id"}, "secret")
       encrypted_item[:id] = "my_id"
     end
 
@@ -32,22 +32,34 @@ describe Capistrano::DataBag::Support do
       # Stub the random IV to get a consistent encryption value
       OpenSSL::Cipher::Cipher.any_instance.stub(:random_iv).and_return("\x05\x99\tEm\x04YR\xDB\x0E'\xC5\xFF\e@\xE4")
 
-      encrypted_item = subject.encrypt_data_bag_item({id: "my_id", val1: "value_1", val2: "value_2"}, "secrete")
+      encrypted_item = subject.encrypt_data_bag_item({id: "my_id", val1: "value_1", val2: "value_2"}, "secret")
       encrypted_item.should == {
         id: "my_id",
         val1: {
-          "encrypted_data" => "ck3KbsHZNGwGQQ3qkwEqKg==\n",
+          "encrypted_data" => "kBMXDW6E0h51G3IXXyYI/A==\n",
           "iv" => "BZkJRW0EWVLbDifF/xtA5A==\n",
           "version" => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
           "cipher" => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
         },
         val2: {
-          "encrypted_data" => "DyaB8O6Et1gCWwpK45bcng==\n",
+          "encrypted_data" => "+kGY+mu09gK2KU5qjkcIcw==\n",
           "iv" => "BZkJRW0EWVLbDifF/xtA5A==\n",
           "version" => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
           "cipher" => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
         }
       }
+    end
+  end
+
+  describe ".decrypt_data_bag_item" do
+    it "does not decrypt plain values" do
+      subject.decrypt_data_bag_item({id: "my_id", val1: "value_1"}, "secret").should == {id: "my_id", val1: "value_1"}
+    end
+
+    it "decrypts encrypted values" do
+      plain_data_bag_item = {id: "my_id", val1: "value_1", val2: "value_2"}
+      encrypted_data_bag_item = subject.encrypt_data_bag_item(plain_data_bag_item, "secret")
+      subject.decrypt_data_bag_item(encrypted_data_bag_item, "secret").should == plain_data_bag_item
     end
   end
 end

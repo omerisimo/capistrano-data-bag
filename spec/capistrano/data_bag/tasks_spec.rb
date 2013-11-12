@@ -97,15 +97,15 @@ describe Capistrano::DataBag::Tasks do
     describe 'data_bag:encrypted:create' do
       let (:create_task) { 'data_bag:encrypted:create' }
 
-      context "with :data_bag_secrete set" do
+      context "with :data_bag_secret set" do
         before do
-          subject.set(:data_bag_secrete, "secrete_file_path")
-          IO.stub(:read).with("secrete_file_path").and_return(" secrete ")
+          subject.set(:data_bag_secret, "secret_file_path")
+          IO.stub(:read).with("secret_file_path").and_return(" secret ")
 
           # in each test expect to encrpyt the data
-          Capistrano::DataBag::Support.should_receive(:encrypt_data_bag_item) do |data, secrete|
+          Capistrano::DataBag::Support.should_receive(:encrypt_data_bag_item) do |data, secret|
             data.should be_a(Hash)
-            secrete.should == "secrete"
+            secret.should == "secret"
             # return the same data to make assertion easier with the normal create task
             data
           end
@@ -113,11 +113,11 @@ describe Capistrano::DataBag::Tasks do
         it_behaves_like "a :create task"
       end
 
-      context "with :data_bag_secrete not set" do
+      context "with :data_bag_secret not set" do
         it "raises an error" do
           expect {
             subject.find_and_execute_task(create_task)
-          }.to raise_error(ArgumentError, /Argument :data_bag_secrete is missing./)
+          }.to raise_error(ArgumentError, /Argument :data_bag_secret is missing./)
         end
       end
     end
