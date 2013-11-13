@@ -14,7 +14,7 @@ end
 
 RSpec.configure do |config|
   config.before(:each) do
-    STDOUT.stub(:puts) #suppress all STDOUT output
+    Capistrano::CLI.ui.stub(:say) #suppress UI output
     Dir.mkdir(File.expand_path(TEMP_PATH, __FILE__))
   end
 

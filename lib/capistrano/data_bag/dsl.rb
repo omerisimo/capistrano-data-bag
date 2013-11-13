@@ -11,7 +11,7 @@ module Capistrano
             File.open(data_bag_item_file, "w") do |f|
               f.write JSON.pretty_generate(data.merge!(id: item))
             end
-            puts "Created a new data bag item at: #{data_bag_item_file}"
+            Capistrano::CLI.ui.say "Created a new data bag item at: #{data_bag_item_file}"
           end
 
           def create_encrypted_data_bag_item(bag, item, data = {}, secret = nil)

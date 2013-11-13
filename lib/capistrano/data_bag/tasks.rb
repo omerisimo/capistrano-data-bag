@@ -21,7 +21,7 @@ module Capistrano
             desc 'Show the content of a data bag'
             task :show do
               set(:data_bag_name, Capistrano::CLI.ui.ask("Enter data bag name: ")) unless exists?(:data_bag_name)
-              puts load_data_bag(data_bag_name)
+              Capistrano::CLI.ui.say load_data_bag(data_bag_name) || ""
             end
 
             namespace :encrypted do

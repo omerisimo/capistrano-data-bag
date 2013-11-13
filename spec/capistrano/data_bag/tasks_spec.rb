@@ -130,7 +130,7 @@ describe Capistrano::DataBag::Tasks do
       it "prints the data bag content" do
         subject.set(:data_bag_name, "bag")
         subject.should_receive(:load_data_bag).with("bag").and_return({bag1: {key1: "value1", key2: "value2"}, bag2: {key3: "value3"}})
-        STDOUT.should_receive(:puts).with({bag1: {key1: "value1", key2: "value2"}, bag2: {key3: "value3"}})
+        Capistrano::CLI.ui.should_receive(:say).with({bag1: {key1: "value1", key2: "value2"}, bag2: {key3: "value3"}})
 
         subject.find_and_execute_task('data_bag:show')
       end
