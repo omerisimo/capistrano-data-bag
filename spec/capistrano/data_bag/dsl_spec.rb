@@ -75,6 +75,21 @@ describe Capistrano::DataBag::DSL do
         my_item2: {field3: "value3", field4: "value4"},
       }
     end
+
+    it "decrypts the data bag item with supplied secret if content is encrypted" do
+      subject.create_encrypted_data_bag_item("my_bag", "my_item1", {field1: "value1", field2: "value2"} ,"secret")
+      subject.load_data_bag("my_bag", "secret").should == {
+        my_item1: {field1: "value1", field2: "value2"},
+      }
+    end
+
+    it "decrypts the data bag item and loads secret if no secret is passed" do
+      subject.should_receive(:load_data_bag_secret).and_return("secret")
+      subject.create_encrypted_data_bag_item("my_bag", "my_item1", {field1: "value1", field2: "value2"} ,"secret")
+      subject.load_data_bag("my_bag").should == {
+        my_item1: {field1: "value1", field2: "value2"},
+      }
+    end
   end
 
   describe "#load_data_bag_secret" do

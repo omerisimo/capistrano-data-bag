@@ -36,16 +36,16 @@ describe Capistrano::DataBag::Support do
       encrypted_item.should == {
         id: "my_id",
         val1: {
-          "encrypted_data" => "kBMXDW6E0h51G3IXXyYI/A==\n",
-          "iv" => "BZkJRW0EWVLbDifF/xtA5A==\n",
-          "version" => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
-          "cipher" => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
+          :encrypted_data => "kBMXDW6E0h51G3IXXyYI/A==\n",
+          :iv => "BZkJRW0EWVLbDifF/xtA5A==\n",
+          :version => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
+          :cipher => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
         },
         val2: {
-          "encrypted_data" => "+kGY+mu09gK2KU5qjkcIcw==\n",
-          "iv" => "BZkJRW0EWVLbDifF/xtA5A==\n",
-          "version" => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
-          "cipher" => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
+          :encrypted_data => "+kGY+mu09gK2KU5qjkcIcw==\n",
+          :iv => "BZkJRW0EWVLbDifF/xtA5A==\n",
+          :version => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
+          :cipher => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
         }
       }
     end
@@ -60,6 +60,25 @@ describe Capistrano::DataBag::Support do
       plain_data_bag_item = {id: "my_id", val1: "value_1", val2: "value_2"}
       encrypted_data_bag_item = subject.encrypt_data_bag_item(plain_data_bag_item, "secret")
       subject.decrypt_data_bag_item(encrypted_data_bag_item, "secret").should == plain_data_bag_item
+    end
+  end
+
+  describe ".is_data_bag_item_encrypted?" do
+    it "returns false if none of the values are encrypted" do
+      subject.is_data_bag_item_encrypted?({is: "id", val1: "value1", val2: "value2"}).should be_false
+    end
+
+    it "returns true if any of the values are encrypted" do
+      subject.is_data_bag_item_encrypted?({
+        id: "my_id",
+        val1: "value1",
+        val2: {
+          :encrypted_data => "encrypted_data",
+          :iv => "iv",
+          :version => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
+          :cipher => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
+        }
+      }).should be_true
     end
   end
 end

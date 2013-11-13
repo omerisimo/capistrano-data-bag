@@ -20,12 +20,16 @@ module Capistrano
             create_data_bag_item(bag, item, encrypted_data)
           end
 
-          def load_data_bag(bag)
+          def load_data_bag(bag, secret = nil)
             return nil unless Dir.exist? "#{data_bags_path}/#{bag}"
             data_bag = {}
             item_files = Dir.entries("#{data_bags_path}/#{bag}").select! {|f| f =~ /\A*\.json\z/i}
             item_files.each do |item_file|
               item_json = Capistrano::DataBag::Support.load_json("#{data_bags_path}/#{bag}/#{item_file}")
+              if Capistrano::DataBag::Support.is_data_bag_item_encrypted?(item_json)
+                secret ||= load_data_bag_secret
+                item_json = Capistrano::DataBag::Support.decrypt_data_bag_item(item_json, secret)
+              end
               data_bag[item_json[:id].to_sym] = item_json.reject {|key, value| key == :id}
             end
             data_bag

@@ -26,12 +26,15 @@ module Capistrano
 
       def self.decrypt_data_bag_item(encrypted_hash, secret)
         plain_hash = {}
-        encrypted_hash.each do |(key, val)|
+        encrypted_hash.each do |key, val|
           plain_hash[key] = is_value_encrypted?(val) ? decrypt_value(val, secret) : val
         end
         plain_hash
       end
 
+      def self.is_data_bag_item_encrypted?(data_bag_item)
+        data_bag_item.any? { |key, value| is_value_encrypted?(value) }
+      end
       private
 
       def self.encrypt_value(plain_value, key)
@@ -42,25 +45,25 @@ module Capistrano
         encrypted_value = encryptor.update(plain_value) + encryptor.final
 
         return {
-          "encrypted_data" => Base64.encode64(encrypted_value),
-          "iv" => Base64.encode64(iv),
-          "version" => ENCRYPTOR_VERSION,
-          "cipher" => ENCRYPTOR_ALGORITHM
+          :encrypted_data => Base64.encode64(encrypted_value),
+          :iv => Base64.encode64(iv),
+          :version => ENCRYPTOR_VERSION,
+          :cipher => ENCRYPTOR_ALGORITHM
         }
       end
 
       def self.decrypt_value(encrypted_value, key)
-        decryptor = OpenSSL::Cipher::Cipher.new(encrypted_value["cipher"])
+        decryptor = OpenSSL::Cipher::Cipher.new(encrypted_value[:cipher])
         decryptor.decrypt
-        decryptor.iv = Base64.decode64(encrypted_value["iv"])
+        decryptor.iv = Base64.decode64(encrypted_value[:iv])
         decryptor.key = Digest::SHA256.digest(key)
 
-        plain_value = decryptor.update(Base64.decode64(encrypted_value["encrypted_data"])) + decryptor.final
+        plain_value = decryptor.update(Base64.decode64(encrypted_value[:encrypted_data])) + decryptor.final
         plain_value
       end
 
       def self.is_value_encrypted?(value)
-        value.is_a?(Hash) && value["cipher"] && value["encrypted_data"] && value["iv"] && value["version"]
+        value.is_a?(Hash) && value[:cipher] && value[:encrypted_data] && value[:iv] && value[:version]
       end
     end
   end
