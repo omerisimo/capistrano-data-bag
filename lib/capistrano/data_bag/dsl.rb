@@ -14,6 +14,12 @@ module Capistrano
             puts "Created a new data bag item at: #{data_bag_item_file}"
           end
 
+          def create_encrypted_data_bag_item(bag, item, data = {}, secret = nil)
+            secret ||= load_data_bag_secret
+            encrypted_data = Capistrano::DataBag::Support.encrypt_data_bag_item(data, secret)
+            create_data_bag_item(bag, item, encrypted_data)
+          end
+
           def load_data_bag(bag)
             return nil unless Dir.exist? "#{data_bags_path}/#{bag}"
             data_bag = {}
@@ -23,6 +29,12 @@ module Capistrano
               data_bag[item_json[:id].to_sym] = item_json.reject {|key, value| key == :id}
             end
             data_bag
+          end
+
+          def load_data_bag_secret(data_bag_secret = nil)
+            data_bag_secret ||= fetch(:data_bag_secret, nil)
+            throw ArgumentError.new("You must supply a secret file path. (Hint: set :data_bag_secret, 'secret/file/path')") unless data_bag_secret
+            IO.read(data_bag_secret).strip
           end
         end
       end

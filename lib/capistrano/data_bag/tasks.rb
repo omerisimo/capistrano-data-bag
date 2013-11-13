@@ -26,11 +26,9 @@ module Capistrano
 
             namespace :encrypted do
               task :create do
-                throw ArgumentError.new("Argument :data_bag_secret is missing.") unless exists?(:data_bag_secret)
-                secret = IO.read(data_bag_secret).strip
+                secret = load_data_bag_secret
                 data = read_create_data_bag_information
-                encrypt_data = Capistrano::DataBag::Support.encrypt_data_bag_item(data, secret)
-                create_data_bag_item(data_bag_name, data_bag_item, encrypt_data)
+                create_encrypted_data_bag_item(data_bag_name, data_bag_item, data, secret)
               end
             end
           end

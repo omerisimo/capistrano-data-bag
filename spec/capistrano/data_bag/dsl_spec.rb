@@ -36,6 +36,27 @@ describe Capistrano::DataBag::DSL do
     end
   end
 
+  describe "#create_encrypted_data_bag_item" do
+    before do
+      Capistrano::DataBag::Support.stub(:encrypt_data_bag_item).and_return("{encrypted_data}")
+      subject.stub(:create_data_bag_item)
+    end
+    it "loads the data bag secret if no secret is passed" do
+      subject.should_receive(:load_data_bag_secret)
+      subject.create_encrypted_data_bag_item("new_bag", "item",{})
+    end
+
+    it "encrypts the data content" do
+      Capistrano::DataBag::Support.should_receive(:encrypt_data_bag_item).with("plain_data", "secret").and_return("{encrypted_data}")
+      subject.create_encrypted_data_bag_item("new_bag", "item", "plain_data", "secret")
+    end
+
+    it "creates the data bag item with the encrypted content" do
+      subject.should_receive(:create_data_bag_item).with("new_bag", "item","{encrypted_data}")
+      subject.create_encrypted_data_bag_item("new_bag", "item", "plain_data", "secret")
+    end
+  end
+
   describe "#load_data_bag" do
     it "returns nil if no data bag exist" do
       subject.load_data_bag("my_bag").should be_nil
@@ -53,6 +74,25 @@ describe Capistrano::DataBag::DSL do
         my_item1: {field1: "value1", field2: "value2"},
         my_item2: {field3: "value3", field4: "value4"},
       }
+    end
+  end
+
+  describe "#load_data_bag_secret" do
+    it "raises an error if no path is set or given" do
+      expect {
+        subject.load_data_bag_secret
+      }.to raise_error(ArgumentError, /You must supply a secret file path/)
+    end
+
+    it "returns the striped content of the secret file path argument" do
+      IO.should_receive(:read).with("secrete/file/path").and_return(" Very secret content! ")
+      subject.load_data_bag_secret("secrete/file/path").should == "Very secret content!"
+    end
+
+    it "reads the file set in :data_bag_secret config variable" do
+      subject.set(:data_bag_secret, "secrete/file/path")
+      IO.should_receive(:read).with("secrete/file/path").and_return("")
+      subject.load_data_bag_secret
     end
   end
 end
