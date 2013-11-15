@@ -161,7 +161,7 @@ config_bag = load_data_bag(env)
 server config_bag[:server][:host], :app, :web, :db
 ```
 
-To load an data bag containing encrypted content:
+To load a data bag containing encrypted content:
 
 ```ruby
 # load secret from file
