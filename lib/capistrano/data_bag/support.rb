@@ -42,7 +42,9 @@ module Capistrano
         encryptor.encrypt
         iv = encryptor.iv = encryptor.random_iv
         encryptor.key = Digest::SHA256.digest(key)
-        encrypted_value = encryptor.update(plain_value) + encryptor.final
+
+        wrapped_value = { value: plain_value } # wrap the value in a hash, because values like strings and integers cannot be parsed to valid JSON
+        encrypted_value = encryptor.update(wrapped_value.to_json) + encryptor.final
 
         return {
           :encrypted_data => Base64.encode64(encrypted_value),
@@ -58,8 +60,8 @@ module Capistrano
         decryptor.iv = Base64.decode64(encrypted_value[:iv])
         decryptor.key = Digest::SHA256.digest(key)
 
-        plain_value = decryptor.update(Base64.decode64(encrypted_value[:encrypted_data])) + decryptor.final
-        plain_value
+        wrapped_value = decryptor.update(Base64.decode64(encrypted_value[:encrypted_data])) + decryptor.final
+        JSON.parse(wrapped_value, :symbolize_names => true)[:value] # Parse the wrapped value and return the value of the wrapper
       end
 
       def self.is_value_encrypted?(value)

@@ -32,17 +32,23 @@ describe Capistrano::DataBag::Support do
       # Stub the random IV to get a consistent encryption value
       OpenSSL::Cipher::Cipher.any_instance.stub(:random_iv).and_return("\x05\x99\tEm\x04YR\xDB\x0E'\xC5\xFF\e@\xE4")
 
-      encrypted_item = subject.encrypt_data_bag_item({id: "my_id", val1: "value_1", val2: "value_2"}, "secret")
+      encrypted_item = subject.encrypt_data_bag_item({id: "my_id", val1: "value_1", val2: [1, 2, "three"], val3: {key: "value"}}, "secret")
       encrypted_item.should == {
         id: "my_id",
         val1: {
-          :encrypted_data => "kBMXDW6E0h51G3IXXyYI/A==\n",
+          :encrypted_data => "8VeszLO3xfKLaoVlVhMsYvbIZpKflH/fTTx11VKmq70=\n",
           :iv => "BZkJRW0EWVLbDifF/xtA5A==\n",
           :version => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
           :cipher => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
         },
         val2: {
-          :encrypted_data => "+kGY+mu09gK2KU5qjkcIcw==\n",
+          :encrypted_data => "sMD+DBoO6xJVlmLMDV3wOluUyhub737tbizG6dYUjkA=\n",
+          :iv => "BZkJRW0EWVLbDifF/xtA5A==\n",
+          :version => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
+          :cipher => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
+        },
+        val3: {
+          :encrypted_data => "Pa5DWTur0X3RQ81VkldJdqD6SOc4PkFZyLC/0+7pixw=\n",
           :iv => "BZkJRW0EWVLbDifF/xtA5A==\n",
           :version => Capistrano::DataBag::Support::ENCRYPTOR_VERSION,
           :cipher => Capistrano::DataBag::Support::ENCRYPTOR_ALGORITHM
@@ -57,7 +63,7 @@ describe Capistrano::DataBag::Support do
     end
 
     it "decrypts encrypted values" do
-      plain_data_bag_item = {id: "my_id", val1: "value_1", val2: "value_2"}
+      plain_data_bag_item = {id: "my_id", val1: "value_1", val2: [1, 2, "three"], val3: {key: "value"}}
       encrypted_data_bag_item = subject.encrypt_data_bag_item(plain_data_bag_item, "secret")
       subject.decrypt_data_bag_item(encrypted_data_bag_item, "secret").should == plain_data_bag_item
     end
