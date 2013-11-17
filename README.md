@@ -135,7 +135,7 @@ This will create a new data bag folder named `\staging`, add a data item  file n
 Show the content of a data bag:
 
 ```sh
-$ cap data_bag:create -s data_bag_name=staging
+$ cap data_bag:show -s data_bag_name=staging
 #=> {:server=>{:host=>"some.host.com"}}
 ```
 
@@ -161,7 +161,7 @@ config_bag = load_data_bag(env)
 server config_bag[:server][:host], :app, :web, :db
 ```
 
-To load an data bag containing encrypted content:
+To load a data bag containing encrypted content:
 
 ```ruby
 # load secret from file
