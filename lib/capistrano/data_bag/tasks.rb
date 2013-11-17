@@ -21,10 +21,15 @@ module Capistrano
             desc 'Show the content of a data bag'
             task :show do
               set(:data_bag_name, Capistrano::CLI.ui.ask("Enter data bag name: ")) unless exists?(:data_bag_name)
-              Capistrano::CLI.ui.say load_data_bag(data_bag_name) || ""
+              if data_bag = load_data_bag(data_bag_name)
+                Capistrano::CLI.ui.say "Data bag :#{data_bag_name} content:\n#{JSON.pretty_generate data_bag}"
+              else
+                Capistrano::CLI.ui.say "could not find data bag: #{data_bag_name}"
+              end
             end
 
             namespace :encrypted do
+              desc 'Create a new data bag with encrypted content'
               task :create do
                 secret = load_data_bag_secret
                 data = read_create_data_bag_information
