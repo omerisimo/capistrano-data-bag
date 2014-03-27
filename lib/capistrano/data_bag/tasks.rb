@@ -60,6 +60,4 @@ module Capistrano
   end
 end
 
-if Capistrano::Configuration.instance
-  Capistrano::DataBag::Tasks.load_into(Capistrano::Configuration.instance)
-end
+Capistrano::DataBag::Tasks.load_into(Capistrano::Configuration.instance) if Capistrano::Configuration.instance
